@@ -16,5 +16,5 @@ bootstrap(app)
 
 connectToDb()
 app.listen(PORT, () => {
-    console.log(`Server is running on porvt ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 })

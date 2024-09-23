@@ -7,7 +7,7 @@ const postSchema = new Schema({
     photo: {
         type: String
     },
-    numberOfLikes:{type : Number ,default : 0 , min : 0},
+    numberOfLikes:{type : Number ,default : 0 , min: [0, 'Number of likes cannot be less than 0']},
 });
 
 const Post = model('Post', postSchema);
