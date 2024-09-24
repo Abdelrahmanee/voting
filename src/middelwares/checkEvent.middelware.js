@@ -1,3 +1,4 @@
+import Event from "../../db/models/event.model.js";
 import { catchAsyncError } from "../utilies/error.js";
 
 // Middleware to check if the event has ended
@@ -20,4 +21,26 @@ const checkEventEndMiddelware = catchAsyncError(async (req, res, next) => {
     next();
 
 });
-export default checkEventEndMiddelware;
+
+export const isEventActive = catchAsyncError(async (req, res, next) => {
+
+    const { eventId } = req.params;
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+    }
+
+    const now = new Date();
+    const eventStart = new Date(event.startTime);
+    const eventEnd = new Date(event.endTime);
+
+    if (now >= eventStart && now <= eventEnd) {
+        next(); // Event is active, proceed to the next handler
+    } else {
+        return res.status(400).json({ message: "Event is not active" });
+    }
+
+})
+
+export default { checkEventEndMiddelware, isEventActive };

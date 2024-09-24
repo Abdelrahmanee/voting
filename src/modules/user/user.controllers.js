@@ -5,18 +5,16 @@ import { catchAsyncError } from "../../utilies/error.js";
 
 export const getUserInfo = catchAsyncError((req, res) => {
 
-     res.json({ message: "success" })
+    res.json({ message: "success" })
 })
 
 // 
 
 export const createUser = catchAsyncError(async (req, res) => {
     const { ip } = req;
-    console.log(req.ip);
 
     const { name, address, phone } = req.body;
 
-    // Create new user in the database
     const newUser = new User({
         name,
         phone,
@@ -24,7 +22,8 @@ export const createUser = catchAsyncError(async (req, res) => {
         address
     });
     await newUser.save();
-    res.status(201).json({ message: 'User created successfully', data: newUser });
+    const user = await User.findById(newUser._id)
+    res.status(201).json({ message: 'User created successfully', data: user, ip });
 })
 
 export const userFavorites = catchAsyncError(async (req, res) => {
@@ -38,4 +37,10 @@ export const userFavorites = catchAsyncError(async (req, res) => {
 
 
     res.status(201).json({ message: 'fav cars', data: fav });
+})
+export const userInfo = catchAsyncError(async (req, res) => {
+    const { ip } = req;
+    const userWithIp = await User.findOne({ ip })
+    const userWithId = await User.findById(req.params.id)
+    res.status(201).json({ message: 'User', data: userWithIp, "UserById": userWithId });
 })
