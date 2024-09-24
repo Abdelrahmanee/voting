@@ -31,8 +31,17 @@ export const bootstrap = (app) => {
     app.use(express.json())
 
 
-    app.use(cors());
+    const corsOptions = {
+        origin: (origin, callback) => {
+            callback(null, true); // Allow any origin dynamically
+        },
+        credentials: true, // Allow credentials (cookies)
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+    };
 
+
+    app.use(cors(corsOptions));
 
     app.use(morgan('dev'))
 

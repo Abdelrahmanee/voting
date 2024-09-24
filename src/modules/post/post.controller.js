@@ -18,9 +18,14 @@ export const deletePost = catchAsyncError(async (req, res, next) => {
 
     const { id: postId } = req.params
 
-    const post = await Post.findByIdAndDelete(postId)
 
-    res.status(201).json({ message: "post deleted successfully", data: post })
+    const post = await Post.findById(postId)
+    if (!post)
+        throw new AppError("Post not found", 404)
+
+    post.deleteOne()
+
+    res.status(201).json({ message: "post deleted successfully" })
 }
 )
 export const updatePost = catchAsyncError(async (req, res, next) => {

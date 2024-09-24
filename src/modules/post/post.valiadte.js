@@ -5,8 +5,8 @@ import Joi from "joi";
 export const addPostSchema = Joi.object({
     body: {
         owner: Joi.string().required().messages({
-            'string.base': 'Owner should be a string.',
-            'any.required': 'Owner is required.'
+            'string.base': 'owner should be a string.',
+            'any.required': 'owner is required.'
         })
     },
     params: {},
