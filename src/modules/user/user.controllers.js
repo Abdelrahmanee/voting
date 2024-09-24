@@ -40,7 +40,7 @@ export const userFavorites = catchAsyncError(async (req, res) => {
 })
 export const userInfo = catchAsyncError(async (req, res) => {
     const { ip } = req;
-    const userWithIp = await User.findOne({ ip })
+    const userWithIp = await User.findOne({ ipAddress: ip })
     const userWithId = await User.findById(req.params.id)
     res.status(201).json({ message: 'User', data: userWithIp, "UserById": userWithId });
 })

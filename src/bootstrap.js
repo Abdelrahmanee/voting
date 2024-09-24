@@ -12,17 +12,6 @@ dotenv.config()
 export const bootstrap = (app) => {
 
 
-    // app.use((req, res, next) => {
-    //     let clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-    //     // Map ::1 to 127.0.0.1 for local development
-    //     if (clientIp === '::1') {
-    //         clientIp = '127.0.0.1';
-    //     }
-
-    //     console.log('Client IP:', clientIp);
-    //     next();
-    // });
 
     app.enable('trust proxy')
     app.set('trust proxy', true);
