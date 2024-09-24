@@ -39,8 +39,6 @@ export const userFavorites = catchAsyncError(async (req, res) => {
     res.status(201).json({ message: 'fav cars', data: fav });
 })
 export const userInfo = catchAsyncError(async (req, res) => {
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
-    const userWithIp = await User.findOne({ ipAddress: ip })
     const userWithId = await User.findById(req.params.id)
-    res.status(201).json({ message: 'User', data: userWithIp });
+    res.status(201).json({ message: 'User', data: userWithId });
 })
