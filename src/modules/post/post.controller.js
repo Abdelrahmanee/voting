@@ -49,7 +49,7 @@ export const updatePost = catchAsyncError(async (req, res, next) => {
 )
 
 export const getAllPosts = catchAsyncError(async (req, res, next) => {
-    const { eventId } = req.body
+    const { eventId } = req.params
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
