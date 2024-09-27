@@ -21,6 +21,7 @@ export const createEvent = catchAsyncError(async (req, res) => {
         eventName,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
+        makeBy : req.user._id
     });
 
 
