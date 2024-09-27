@@ -29,7 +29,7 @@ export const createEventSchema = Joi.object({
 });
 
 export const checkEventIdParams= Joi.object({
-    body: {},
+    body: {userId: Joi.string().hex().length(24).required(), },
     params: { eventId: Joi.string().hex().length(24).required(), },
     query: {}
 })
