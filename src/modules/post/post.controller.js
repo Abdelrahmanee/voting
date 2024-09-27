@@ -8,7 +8,7 @@ export const addPost = catchAsyncError(async (req, res, next) => {
 
     const uploadedImage = req.file;
     const post = new Post({
-        owner : req.user,
+        owner: req.user,
         photo: uploadedImage.path,
         event: req.event._id
     })
@@ -49,22 +49,28 @@ export const updatePost = catchAsyncError(async (req, res, next) => {
 )
 
 export const getAllPosts = catchAsyncError(async (req, res, next) => {
-    const { eventId } = req.params
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const { eventId } = req.params; 
+    
+    
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 20; 
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find({ event : eventId  , owner : req.user._id})
-        .sort({ numberOfLikes: -1 })
+    const posts = await Post.find({ event: eventId })
+        .sort({ numberOfLikes: -1 }) 
         .skip(skip)
         .limit(limit);
 
-    const totalPosts = await Post.countDocuments();
+    const totalPosts = await Post.countDocuments({ event: eventId });
 
     const totalPages = Math.ceil(totalPosts / limit);
 
+    if (posts.length === 0) {
+        return res.status(404).json({ message: "No posts found for this event" });
+    }
+
     res.status(200).json({
-        message: "All posts",
+        message: "All posts for the event",
         pagination: {
             totalPosts,
             totalPages,
@@ -74,6 +80,7 @@ export const getAllPosts = catchAsyncError(async (req, res, next) => {
         data: posts
     });
 });
+
 export const getSpecificPost = catchAsyncError(async (req, res, next) => {
     const { postId } = req.params
     const post = await Post.findById(postId)
