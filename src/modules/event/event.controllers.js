@@ -124,8 +124,8 @@ export const createEventAccess = catchAsyncError(async (req, res, next) => {
     }
 
     const populatedAccess = await createdAccess.populate([
-        { path: 'user', model: 'User' },       
-        { path: 'organizer', model: 'User' }    
+        { path: 'user', model: 'User' , select : '-address -ipAddress -events  -createdAt -updatedAt -isLoggedOut' },
+        { path: 'organizer', model: 'User' , select : '-address -ipAddress -events -updatedAt -isLoggedOut ' }
     ]);
 
     res.status(201).json({
