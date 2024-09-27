@@ -75,8 +75,12 @@ export const checkEventEnd = catchAsyncError(async (req, res) => {
     }
 
     // Calculate time difference
-    const timeDiff = event.timeDifference.timeMessage;
+    const timeDiff = await event.timeDifference;
 
+    console.log(timeDiff);
+    console.log(event);
+    console.log(event.timeDifference);
+    
     // Update event status if it has ended
     if (new Date() >= event.endTime) {
         event.status = 'completed'; // Assuming you have a status field
