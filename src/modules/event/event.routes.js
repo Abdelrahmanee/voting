@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validate } from "../../middelwares/validation.middelware.js";
-import { createEventSchema } from "./event.validate.js";
+import { checkEventIdParams, createEventSchema } from "./event.validate.js";
 import { checkEventEnd, checkEventStart, createEvent, createEventAccess, getEventWithCounts, getSpecificEvent } from "./event.controllers.js";
 import postRouter from "../post/post.routes.js";
 import likeRouter from "../like/like.routes.js";
@@ -18,10 +18,10 @@ eventRouter.param('eventId', checkEventExists);
 
 eventRouter.post('/create-access', authenticate, authorize(), checkHasAccess, createEventAccess)
 
-eventRouter.get('/event-details/:eventId', authenticate, authorize(), getEventWithCounts);
-eventRouter.get('/:eventId', authenticate, authorize(), getSpecificEvent);
-eventRouter.get('/:eventId/check-start', authenticate, authorize([ROLES.ADMIN]), checkEventStart);
-eventRouter.get('/:eventId/check-end', authenticate, authorize([ROLES.ADMIN]), checkEventEnd);
+eventRouter.get('/event-details/:eventId', authenticate, authorize(), getEventWithCounts); //لسا
+eventRouter.get('/:eventId', authenticate, authorize(), validate(checkEventIdParams), getSpecificEvent);
+eventRouter.get('/:eventId/check-start', authenticate, authorize([ROLES.ADMIN]), validate(checkEventIdParams), checkEventStart);
+eventRouter.get('/:eventId/check-end', authenticate, authorize([ROLES.ADMIN]), validate(checkEventIdParams), checkEventEnd);
 
 
 eventRouter.use('/:eventId/posts', postRouter);
