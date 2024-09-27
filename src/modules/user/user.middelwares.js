@@ -15,3 +15,10 @@ export const checkUniqueIpAddress = catchAsyncError(async (req, res, next) => {
 
     next()
 })
+export const checkUniquePhone = catchAsyncError(async (req, res, next) => {
+    const {phone} = req.body
+    const userIsExist = await User.findOne({phone })
+    if (userIsExist)
+        throw new AppError('phone is used', 400)
+    next()
+})

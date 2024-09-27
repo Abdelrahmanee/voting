@@ -8,6 +8,7 @@ export const validate = (schema) => {
                 body: req.body,
                 params: req.params,
                 query: req.query,
+                
                 ...(req.file && { file: req.file }),
                 ...(req.files ? { files: req.files } : null),
             },

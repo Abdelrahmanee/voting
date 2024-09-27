@@ -7,27 +7,42 @@ export const addPostSchema = Joi.object({
         owner: Joi.string().required().messages({
             'string.base': 'owner should be a string.',
             'any.required': 'owner is required.'
-        })
+        }),
+        userId: Joi.string().hex().length(24).required(),
     },
-    params: {},
+    params: { eventId: Joi.string().hex().length(24).required() },
     query: {},
     file: Joi.object({}).unknown(true)
 })
 
 export const updatePostSchema = Joi.object({
     body: {
+        userId: Joi.string().hex().length(24).required(),
         owner: Joi.string().required(),
     },
-    params: { id: Joi.string().hex().length(24).required() },
+    params: {
+        postId: Joi.string().hex().length(24).required(),
+        eventId: Joi.string().hex().length(24).required()
+    },
     query: {}
 })
 export const deletePostSchema = Joi.object({
-    body: {},
-    params: { id: Joi.string().hex().length(24).required() },
+    body: {
+        userId: Joi.string().hex().length(24).required(),
+    },
+    params: {
+        postId: Joi.string().hex().length(24).required(),
+        eventId: Joi.string().hex().length(24).required()
+    },
     query: {}
 })
 export const getSpecificPostSchema = Joi.object({
-    body: {},
-    params: { id: Joi.string().hex().length(24).required() },
+    body: {
+        userId: Joi.string().hex().length(24).required(),
+    },
+    params: {
+        postId: Joi.string().hex().length(24).required(),
+        eventId: Joi.string().hex().length(24).required()
+    },
     query: {}
 })

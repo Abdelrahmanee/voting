@@ -1,5 +1,6 @@
 import Event from "../../../db/models/event.model.js";
-import { catchAsyncError } from "../../utilies/error.js";
+import EventUser from "../../../db/models/EventUser.model.js";
+import { AppError, catchAsyncError } from "../../utilies/error.js";
 
 
 
@@ -21,6 +22,9 @@ export const createEvent = catchAsyncError(async (req, res) => {
         startTime: new Date(startTime),
         endTime: new Date(endTime),
     });
+
+
+
 
     // Save the new event entry
     await newEvent.save();
@@ -70,7 +74,7 @@ export const checkEventEnd = catchAsyncError(async (req, res) => {
     }
 
     // Calculate time difference
-    const timeDiff = event.timeDifference;
+    const timeDiff = event.timeDifference.timeMessage;
 
     // Update event status if it has ended
     if (new Date() >= event.endTime) {
@@ -86,3 +90,42 @@ export const checkEventEnd = catchAsyncError(async (req, res) => {
 
 });
 
+export const getSpecificEvent = catchAsyncError(async (req, res, next) => {
+    const event = await Event.findById(req.params.eventId)
+    if (!event) throw new AppError('Event not found', 404)
+
+    res.status(200).json({ message: "Event info", data: event })
+})
+
+
+export const createEventAccess = catchAsyncError(async (req, res, next) => {
+    const { _id: userId } = req.user
+    const { eventId } = req.body
+    if (!userId || !eventId) throw new AppError('userId and eventId is requried', 400)
+    const event = await Event.findById(eventId)
+    const createdAccess = await EventUser.create({
+        user: userId,
+        event: eventId,
+        organizer: event.makeBy
+    })
+    if (!req.user.events.includes(event._id)) {
+        req.user.events.push(event._id)
+        await req.user.save()
+    }
+
+    res.status(201).json({ status: "success", message: `you can access ${event.eventName} now`, data: createdAccess.populate('organizer') })
+
+})
+
+export const getEventWithCounts = catchAsyncError(async (req, res, next) => {
+
+
+    const event = await Event.findById(req.params.eventId)
+        .populate('numberOfUsers')
+        .populate('numberOfPosts')
+        .populate('users')
+        .populate('posts');
+    console.log(event);
+
+    res.status(200).json({ message: "Event details", data: `Event: ${event.eventName}, Users: ${event.numberOfUsers}, Posts: ${event.numberOfPosts}` });
+})

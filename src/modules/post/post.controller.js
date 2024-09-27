@@ -8,29 +8,39 @@ export const addPost = catchAsyncError(async (req, res, next) => {
 
     const { owner } = req.body
     const uploadedImage = req.file;
+    console.log(req.event);
+    
+    const post = new Post({
+        owner,
+        photo: uploadedImage.path,
+        event : req.event._id
+    })
 
-    const post = await Post.create({ owner, photo: uploadedImage.path })
-
+    await post.save()
+    console.log(post);
+    
     res.status(201).json({ message: "post is created", data: post })
 }
 )
 export const deletePost = catchAsyncError(async (req, res, next) => {
 
-    const { id: postId } = req.params
-
-
+    const { postId } = req.params
+    
     const post = await Post.findById(postId)
+    console.log(post);
+    
     if (!post)
         throw new AppError("Post not found", 404)
 
-    post.deleteOne()
+    await post.deleteOne()
 
     res.status(201).json({ message: "post deleted successfully" })
 }
 )
 export const updatePost = catchAsyncError(async (req, res, next) => {
 
-    const { id: postId } = req.params
+
+    const { postId } = req.params
     const isPostExist = await Post.findById(postId)
     if (!isPostExist)
         throw new AppError("Post not found", 404)
@@ -68,7 +78,7 @@ export const getAllPosts = catchAsyncError(async (req, res, next) => {
     });
 });
 export const getSpecificPost = catchAsyncError(async (req, res, next) => {
-    const { id: postId } = req.params
+    const { postId } = req.params
     const post = await Post.findById(postId)
     if (!post)
         throw new AppError("Post not found", 404)

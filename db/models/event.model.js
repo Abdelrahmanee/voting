@@ -4,6 +4,7 @@ const eventSchema = new Schema({
     eventName: {
         type: String,
         required: true,
+        unique: true
     },
     status: {
         type: String,
@@ -11,8 +12,9 @@ const eventSchema = new Schema({
         default: 'upcoming'
     },
     makeBy: {
-        type: String,
-        default: 'Hossam'
+        type: Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     startTime: {
         type: Date,
@@ -21,31 +23,54 @@ const eventSchema = new Schema({
     endTime: {
         type: Date,
         required: true
-    }
+    },
 },
-{
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true }
-});
+    {
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
+    });
 
-// Virtual field to calculate the time difference between startTime and endTime
-eventSchema.virtual('timeDifference').get(function() {
+eventSchema.virtual('timeDifference').get(function () {
     const timeDiff = this.endTime - this.startTime;
+
     const seconds = Math.floor((timeDiff / 1000) % 60);
     const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
     const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
-    
-    // Check if timeLeftToStart has a value
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    const weeks = Math.floor(days / 7);
+    const months = Math.floor(days / 30);
+
     const timeLeft = this.timeLeftToStart;
-    if (timeLeft && timeLeft !== 'Event has started or passed') {
-        return `${hours} hours, ${minutes} minutes, ${seconds} seconds (Time left to start: ${timeLeft})`;
+    let timeMessage = '';
+
+    if (months > 0) {
+        timeMessage += `${months} month${months > 1 ? 's' : ''}, `;
     }
-    
-    return `${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+    if (weeks > 0) {
+        timeMessage += `${weeks} week${weeks > 1 ? 's' : ''}, `;
+    }
+    if (days > 0) {
+        timeMessage += `${days} day${days > 1 ? 's' : ''}, `;
+    }
+    if (hours > 0) {
+        timeMessage += `${hours} hour${hours > 1 ? 's' : ''}, `;
+    }
+    if (minutes > 0) {
+        timeMessage += `${minutes} minute${minutes > 1 ? 's' : ''}, `;
+    }
+    timeMessage += `${seconds} second${seconds !== 1 ? 's' : ''}`; // Always show seconds
+
+    // Check if timeLeftToStart has a value
+    if (timeLeft && timeLeft !== 'Event has started or passed') {
+        return `${timeMessage} (Time left to start: ${timeLeft})`;
+    }
+
+    return timeMessage;
 });
 
+
 // Virtual field to calculate the remaining time to start the event
-eventSchema.virtual('timeLeftToStart').get(function() {
+eventSchema.virtual('timeLeftToStart').get(function () {
     const currentTime = new Date();
     const timeLeft = this.startTime - currentTime;
 
@@ -59,6 +84,32 @@ eventSchema.virtual('timeLeftToStart').get(function() {
     const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
 
     return `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+});
+eventSchema.virtual('numberOfUsers', {
+    ref: 'EventUser',
+    localField: '_id',
+    foreignField: 'event',
+    count: true, // Will return the number of users related to this event
+});
+
+eventSchema.virtual('numberOfPosts', {
+    ref: 'Post',
+    localField: '_id',
+    foreignField: 'event',
+    count: true, // Will return the number of posts related to this event
+});
+
+// If you also want to populate the actual 'users' and 'posts' (not just the count):
+eventSchema.virtual('users', {
+    ref: 'EventUser',
+    localField: '_id',
+    foreignField: 'event',
+});
+
+eventSchema.virtual('posts', {
+    ref: 'Post',
+    localField: '_id',
+    foreignField: 'event',
 });
 
 const Event = model('Event', eventSchema);

@@ -12,8 +12,11 @@ const calculateExpirationDate = () => {
 
 
 
-export const likeOrUnlike = catchAsyncError(async (req, res) => {
 
+export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
+
+  console.log("asd");
+  
   const { postId } = req.body;
   const { ip } = req;
 
@@ -21,6 +24,8 @@ export const likeOrUnlike = catchAsyncError(async (req, res) => {
   if (!postIsExist) {
     throw new AppError('Post not found', 404);
   }
+  console.log(req.ip);
+  
 
   const userIsExist = await User.findOne({ ipAddress: ip });
   if (!userIsExist) {
@@ -70,3 +75,4 @@ export const likeOrUnlike = catchAsyncError(async (req, res) => {
   return res.status(201).json({ message: "Liked successfully", data: like });
 
 });
+
