@@ -40,12 +40,15 @@ export const checkUniqueEventName = catchAsyncError(async (req, res, next) => {
 
 export const checkHasAccess = catchAsyncError(async (req, res, next) => {
     const { eventId } = req.body
-    const { _id :userId } = req.user
+    const { _id: userId } = req.user
     const accessedBefore = await EventUser.findOne({ event: eventId, user: userId })
-    console.log(accessedBefore);
-    
+    const populatedAccess = await accessedBefore.populate([
+        { path: 'user', model: 'User' , select : '-address -ipAddress -events  -createdAt -updatedAt -isLoggedOut' },
+        { path: 'organizer', model: 'User' , select : '-address -ipAddress -events -updatedAt -isLoggedOut ' }
+    ]);
+
     if (accessedBefore)
-        res.status(200).json({ message: "user access this event before" , data : accessedBefore })
+        res.status(200).json({ message: "user access this event before", data: populatedAccess })
     next();
 })
 

@@ -99,23 +99,37 @@ export const getSpecificEvent = catchAsyncError(async (req, res, next) => {
 
 
 export const createEventAccess = catchAsyncError(async (req, res, next) => {
-    const { _id: userId } = req.user
-    const { eventId } = req.body
-    if (!userId || !eventId) throw new AppError('userId and eventId is requried', 400)
-    const event = await Event.findById(eventId)
+    const { _id: userId } = req.user;
+    const { eventId } = req.body;
+
+    if (!userId || !eventId) throw new AppError('userId and eventId are required', 400);
+
+    const event = await Event.findById(eventId);
+    if (!event) throw new AppError('Event not found', 404);
+
     const createdAccess = await EventUser.create({
         user: userId,
         event: eventId,
-        organizer: event.makeBy
-    })
+        organizer: event.makeBy 
+    });
+
     if (!req.user.events.includes(event._id)) {
-        req.user.events.push(event._id)
-        await req.user.save()
+        req.user.events.push(event._id);
+        await req.user.save();
     }
 
-    res.status(201).json({ status: "success", message: `you can access ${event.eventName} now`, data: createdAccess.populate('organizer') })
+    const populatedAccess = await createdAccess.populate([
+        { path: 'user', model: 'User' },       
+        { path: 'organizer', model: 'User' }    
+    ]);
 
-})
+    res.status(201).json({
+        status: "success",
+        message: `You can now access ${event.eventName}`,
+        data: populatedAccess
+    });
+});
+
 
 export const getEventWithCounts = catchAsyncError(async (req, res, next) => {
 
