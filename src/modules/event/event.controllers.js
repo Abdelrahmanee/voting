@@ -106,17 +106,26 @@ export const getSpecificEvent = catchAsyncError(async (req, res, next) => {
 export const createEventAccess = catchAsyncError(async (req, res, next) => {
     const { _id: userId } = req.user;
     const { eventId } = req.body;
+    console.log("createdAccess");
 
     if (!userId || !eventId) throw new AppError('userId and eventId are required', 400);
 
     const event = await Event.findById(eventId);
     if (!event) throw new AppError('Event not found', 404);
 
+    if (!event.makeBy) throw new AppError('Event organizer not found', 404);
+
     const createdAccess = await EventUser.create({
         user: userId,
         event: eventId,
-        organizer: event.makeBy 
+        organizer: event.makeBy, 
     });
+    console.log(createdAccess);
+    
+
+    
+
+    if (!createdAccess) throw new AppError('Failed to create access record', 500);
 
     if (!req.user.events.includes(event._id)) {
         req.user.events.push(event._id);
@@ -124,14 +133,14 @@ export const createEventAccess = catchAsyncError(async (req, res, next) => {
     }
 
     const populatedAccess = await createdAccess.populate([
-        { path: 'user', model: 'User' , select : '-address -ipAddress -events  -createdAt -updatedAt -isLoggedOut' },
-        { path: 'organizer', model: 'User' , select : '-address -ipAddress -events -updatedAt -isLoggedOut ' }
+        { path: 'user', model: 'User', select: '-address -ipAddress -events -createdAt -updatedAt -isLoggedOut' },
+        { path: 'organizer', model: 'User', select: '-address -ipAddress -events -updatedAt -isLoggedOut' }
     ]);
 
     res.status(201).json({
         status: "success",
         message: `You can now access ${event.eventName}`,
-        data: populatedAccess
+        data: populatedAccess,
     });
 });
 

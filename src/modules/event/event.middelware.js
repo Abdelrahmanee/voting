@@ -39,16 +39,24 @@ export const checkUniqueEventName = catchAsyncError(async (req, res, next) => {
 })
 
 export const checkHasAccess = catchAsyncError(async (req, res, next) => {
-    const { eventId } = req.body
-    const { _id: userId } = req.user
-    const accessedBefore = await EventUser.findOne({ event: eventId, user: userId })
-    const populatedAccess = await accessedBefore.populate([
-        { path: 'user', model: 'User' , select : '-address -ipAddress -events  -createdAt -updatedAt -isLoggedOut' },
-        { path: 'organizer', model: 'User' , select : '-address -ipAddress -events -updatedAt -isLoggedOut ' }
-    ]);
+    const { eventId } = req.body;
+    const { _id: userId } = req.user;
 
-    if (accessedBefore)
-        res.status(200).json({ message: "user access this event before", data: populatedAccess })
+    // Check if the user has accessed this event before
+    const accessedBefore = await EventUser.findOne({ event: eventId, user: userId });
+
+    // If the user has accessed the event, proceed with population and response
+    if (accessedBefore) {
+        const populatedAccess = await accessedBefore.populate([
+            { path: 'user', model: 'User', select: '-address -ipAddress -events -createdAt -updatedAt -isLoggedOut' },
+            { path: 'organizer', model: 'User', select: '-address -ipAddress -events -updatedAt -isLoggedOut' }
+        ]);
+        console.log("hellow");
+        
+        return res.status(200).json({ message: "User has accessed this event before", data: populatedAccess });
+    }
+
     next();
-})
+});
+
 
