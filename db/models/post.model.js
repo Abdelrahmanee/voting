@@ -2,7 +2,9 @@ import { Schema, Types, model } from 'mongoose';
 
 const postSchema = new Schema({
     owner: {
-        type: String
+        type: Types.ObjectId,
+        ref:'User',
+        required:true
     },
     photo: {
         type: String

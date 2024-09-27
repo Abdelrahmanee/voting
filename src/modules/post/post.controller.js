@@ -6,29 +6,26 @@ import { AppError, catchAsyncError } from "../../utilies/error.js";
 
 export const addPost = catchAsyncError(async (req, res, next) => {
 
-    const { owner } = req.body
     const uploadedImage = req.file;
-    console.log(req.event);
-    
     const post = new Post({
-        owner,
+        owner : req.user,
         photo: uploadedImage.path,
-        event : req.event._id
+        event: req.event._id
     })
 
     await post.save()
     console.log(post);
-    
+
     res.status(201).json({ message: "post is created", data: post })
 }
 )
 export const deletePost = catchAsyncError(async (req, res, next) => {
 
     const { postId } = req.params
-    
+
     const post = await Post.findById(postId)
     console.log(post);
-    
+
     if (!post)
         throw new AppError("Post not found", 404)
 
@@ -52,12 +49,12 @@ export const updatePost = catchAsyncError(async (req, res, next) => {
 )
 
 export const getAllPosts = catchAsyncError(async (req, res, next) => {
+    const { eventId } = req.body
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
-
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find()
+    const posts = await Post.find({ event : eventId })
         .sort({ numberOfLikes: -1 })
         .skip(skip)
         .limit(limit);
@@ -68,13 +65,13 @@ export const getAllPosts = catchAsyncError(async (req, res, next) => {
 
     res.status(200).json({
         message: "All posts",
-        data: posts,
         pagination: {
             totalPosts,
             totalPages,
             currentPage: page,
             limit,
         },
+        data: posts
     });
 });
 export const getSpecificPost = catchAsyncError(async (req, res, next) => {
