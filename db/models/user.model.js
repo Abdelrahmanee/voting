@@ -62,31 +62,37 @@ const userSchema = new Schema({
     ref: 'Event',
     default: [],
   }],
+  
   likes: {
-    type: [Types.ObjectId],
-    ref: 'LikedItem',
+    type: [Types.ObjectId], // Array of ObjectIds, referencing Post
+    ref: 'Post',
     validate: {
       validator: async function (likes) {
+        // 'this' refers to the current user document
+        if (!this.eventIdToValidate)
+          return
 
-        const eventId = this.eventIdToValidate;
+        const eventId = this.eventIdToValidate;  // Assuming this field will be set externally
 
         if (!eventId) {
-          throw new AppError('No event specified for validation.' , 400);
+          throw new Error('No event specified for validation.');
         }
 
+        // Check if the user is associated with this event
         if (!this.events.includes(eventId)) {
-          throw new AppError('The specified event is not associated with this user.', 400);
+          throw new Error('The specified event is not associated with this user.');
         }
 
+        // Find the event by its ID
         const event = await Event.findById(eventId);
         if (!event) {
-          throw new AppError('Event not found.', 404);
+          throw new Error('Event not found.');
         }
 
+        // Check the max allowed likes for the event
         const maxLikes = event.number_of_allowed_likes;
-
         if (likes.length > maxLikes) {
-          throw new AppError(`You can only have a maximum of ${maxLikes} likes for this event.`, 400);
+          throw new Error(`You can only have a maximum of ${maxLikes} likes for this event.`);
         }
 
         return true;
@@ -95,7 +101,7 @@ const userSchema = new Schema({
         return `You have exceeded the maximum allowed likes for the selected event.`;
       }
     }
-  },
+  }
 }, { timestamps: true });
 
 
