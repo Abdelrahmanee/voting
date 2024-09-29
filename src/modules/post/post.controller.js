@@ -54,7 +54,7 @@ export const getAllPosts = catchAsyncError(async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find({ event: eventId })
+    let posts = await Post.find({ event: eventId })
         .sort({ numberOfLikes: -1 })
         .skip(skip)
         .limit(limit);
