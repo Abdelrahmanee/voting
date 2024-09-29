@@ -62,7 +62,7 @@ const userSchema = new Schema({
     ref: 'Event',
     default: [],
   }],
-  
+
   likes: {
     type: [Types.ObjectId], // Array of ObjectIds, referencing Post
     ref: 'Post',
@@ -74,26 +74,26 @@ const userSchema = new Schema({
         const eventId = this.eventIdToValidate;  // Assuming this field will be set externally
 
         if (!eventId) {
-          throw new Error('No event specified for validation.');
+          throw new AppError('No event specified for validation.', 400);
         }
 
         // Check if the user is associated with this event
         if (!this.events.includes(eventId)) {
-          throw new Error('The specified event is not associated with this user.');
+          throw new AppError('The specified event is not associated with this user.', 400);
         }
 
         // Find the event by its ID
         const event = await Event.findById(eventId);
         if (!event) {
-          throw new Error('Event not found.');
+          throw new AppError('Event not found.', 400);
         }
 
         // Check the max allowed likes for the event
         const maxLikes = event.number_of_allowed_likes;
         console.log(maxLikes);
-        
+
         if (likes.length > maxLikes) {
-          throw new Error(`You can only have a maximum of ${maxLikes} likes for this event.`);
+          throw new AppError(`You can only have a maximum of ${maxLikes} likes for this event.`, 400);
         }
 
         return true;
@@ -122,7 +122,7 @@ userSchema.virtual('accessedEvents', {
   ref: 'EventUser',
   localField: '_id',
   foreignField: 'user',
-  justOne: false, 
+  justOne: false,
 });
 
 
