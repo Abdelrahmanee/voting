@@ -10,7 +10,7 @@ import { ROLES } from "../../utilies/enums.js";
 
 const postRouter = Router({ mergeParams: true });  // Ensures eventId is passed
 
-postRouter.get('/', authenticate, authorize(), getAllPosts)
+postRouter.post('/', authenticate, authorize(), getAllPosts)
 postRouter.post('/add-post',
     uploadPhotoMiddleware,
     validate(addPostSchema),
