@@ -8,15 +8,14 @@ export const addPost = catchAsyncError(async (req, res, next) => {
 
     const uploadedImage = req.file;
     const post = new Post({
-        owner: req.user,
+        owner: req.user._id,
         photo: uploadedImage.path,
         event: req.event._id
     })
 
     await post.save()
-    console.log(post);
-
-    res.status(201).json({ message: "post is created", data: post })
+    const populatedPost = await post.populate({ path: 'owner', select: '-address' })
+    res.status(201).json({ message: "post is created", data: populatedPost })
 }
 )
 export const deletePost = catchAsyncError(async (req, res, next) => {
@@ -24,7 +23,6 @@ export const deletePost = catchAsyncError(async (req, res, next) => {
     const { postId } = req.params
 
     const post = await Post.findById(postId)
-    console.log(post);
 
     if (!post)
         throw new AppError("Post not found", 404)
@@ -49,15 +47,15 @@ export const updatePost = catchAsyncError(async (req, res, next) => {
 )
 
 export const getAllPosts = catchAsyncError(async (req, res, next) => {
-    const { eventId } = req.params; 
-    
-    
-    const page = parseInt(req.query.page) || 1; 
-    const limit = parseInt(req.query.limit) || 20; 
+    const { eventId } = req.params;
+
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
     const posts = await Post.find({ event: eventId })
-        .sort({ numberOfLikes: -1 }) 
+        .sort({ numberOfLikes: -1 })
         .skip(skip)
         .limit(limit);
 

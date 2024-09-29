@@ -10,7 +10,7 @@ import Joi from "joi";
 export const createUserSchema = Joi.object({
     body: {
         name: Joi.string().min(2).max(24).required(),
-        address: Joi.object().unknown(),
+        address: Joi.object().unknown(true),
         phone: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
     },
     params: {},

@@ -24,6 +24,12 @@ const eventSchema = new Schema({
         type: Date,
         required: true
     },
+    number_of_allowed_likes : {
+        type: Number,
+        min: 1,
+        default: 1,
+        required: true
+    }
 },
     {
         toJSON: { virtuals: true },
@@ -85,32 +91,39 @@ eventSchema.virtual('timeLeftToStart').get(function () {
 
     return `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
 });
-eventSchema.virtual('numberOfUsers', {
-    ref: 'EventUser',
-    localField: '_id',
-    foreignField: 'event',
-    count: true, // Will return the number of users related to this event
-});
+
 
 eventSchema.virtual('numberOfPosts', {
     ref: 'Post',
     localField: '_id',
     foreignField: 'event',
-    count: true, // Will return the number of posts related to this event
+    count: true,
 });
 
-// If you also want to populate the actual 'users' and 'posts' (not just the count):
-eventSchema.virtual('users', {
-    ref: 'EventUser',
-    localField: '_id',
-    foreignField: 'event',
-});
+
 
 eventSchema.virtual('posts', {
     ref: 'Post',
     localField: '_id',
     foreignField: 'event',
 });
+
+eventSchema.virtual('numberOfUsersWithAccess', {
+    ref: 'EventUser',
+    localField: '_id',
+    foreignField: 'event',
+    count: true,
+    match: { hasAccess: true }
+});
+
+eventSchema.virtual('usersWithAccess', {
+    ref: 'EventUser',
+    localField: '_id',
+    foreignField: 'event',
+    justOne: false, // Multiple users expected
+    match: { hasAccess: true }, // Filters by hasAccess: true
+});
+
 
 const Event = model('Event', eventSchema);
 

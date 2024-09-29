@@ -30,6 +30,10 @@ const eventUserSchema = new Schema({
             default: 0,
         }
     },
+    hasAccess:{
+        type : Boolean,
+        default : false
+    }
 }, {
     timestamps: true,
     versionKey: false,
@@ -37,6 +41,7 @@ const eventUserSchema = new Schema({
 
 // Create a compound index for user and event to avoid duplicates
 eventUserSchema.index({ user: 1, event: 1 }, { unique: true });
+
 
 const EventUser = model('EventUser', eventUserSchema);
 

@@ -1,5 +1,6 @@
 import { Schema, Types, model } from 'mongoose';
 import { ROLES, USERSTATUS } from '../../src/utilies/enums.js';
+import { AppError } from '../../src/utilies/error.js';
 
 const userSchema = new Schema({
   name: {
@@ -47,10 +48,6 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
-  likes: [{
-    type: Types.ObjectId,
-    ref: 'Post', // Assuming likes refer to Post model objects
-  }],
   isLoggedOut: {
     type: Boolean,
     default: false
@@ -65,6 +62,40 @@ const userSchema = new Schema({
     ref: 'Event',
     default: [],
   }],
+  likes: {
+    type: [Types.ObjectId],
+    ref: 'LikedItem',
+    validate: {
+      validator: async function (likes) {
+
+        const eventId = this.eventIdToValidate;
+
+        if (!eventId) {
+          throw new AppError('No event specified for validation.' , 400);
+        }
+
+        if (!this.events.includes(eventId)) {
+          throw new AppError('The specified event is not associated with this user.', 400);
+        }
+
+        const event = await Event.findById(eventId);
+        if (!event) {
+          throw new AppError('Event not found.', 404);
+        }
+
+        const maxLikes = event.number_of_allowed_likes;
+
+        if (likes.length > maxLikes) {
+          throw new AppError(`You can only have a maximum of ${maxLikes} likes for this event.`, 400);
+        }
+
+        return true;
+      },
+      message: function (props) {
+        return `You have exceeded the maximum allowed likes for the selected event.`;
+      }
+    }
+  },
 }, { timestamps: true });
 
 
@@ -82,7 +113,7 @@ userSchema.path('likes').set(function (likes) {
 // Validation to enforce a maximum of 3 likes
 userSchema.path('likes').validate(function (likes) {
   if (likes.length > 1) {
-    throw new Error('You can only have a maximum of 1 likes.');
+    throw new AppError('You can only have a maximum of 1 likes.');
   }
 }, 'You can only have a maximum of 1 likes.');
 

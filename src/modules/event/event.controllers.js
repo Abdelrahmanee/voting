@@ -9,6 +9,7 @@ import { AppError, catchAsyncError } from "../../utilies/error.js";
 export const createEvent = catchAsyncError(async (req, res) => {
     const { eventName, startTime, endTime } = req.body;
 
+    
     // Validate that startTime is before endTime
     if (new Date(startTime) >= new Date(endTime)) {
         return res.status(400).json({
@@ -21,7 +22,8 @@ export const createEvent = catchAsyncError(async (req, res) => {
         eventName,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        makeBy : req.user._id
+        makeBy : req.user._id,
+        ...(req.body.number_of_allowed_likes && { number_of_allowed_likes: req.body.number_of_allowed_likes })
     });
 
 
@@ -119,6 +121,7 @@ export const createEventAccess = catchAsyncError(async (req, res, next) => {
         user: userId,
         event: eventId,
         organizer: event.makeBy, 
+        hasAccess:true
     });
     console.log(createdAccess);
     
@@ -149,11 +152,15 @@ export const getEventWithCounts = catchAsyncError(async (req, res, next) => {
 
 
     const event = await Event.findById(req.params.eventId)
-        .populate('numberOfUsers')
         .populate('numberOfPosts')
-        .populate('users')
-        .populate('posts');
-    console.log(event);
+        .populate('posts')
+        .populate('numberOfUsersWithAccess') // Count of users with hasAccess: true
+        .populate({
+          path: 'usersWithAccess',            // List of users with hasAccess: true
+          select: 'user'                      // Only select the user field
+        });
+    console.log(event.numberOfUsersWithAccess);
+    console.log(event.usersWithAccess);
 
-    res.status(200).json({ message: "Event details", data: `Event: ${event.eventName}, Users: ${event.numberOfUsers}, Posts: ${event.numberOfPosts}` });
+    res.status(200).json({ message: "Event details", data: `Event: ${event.eventName}, Users: ${event.numberOfUsersWithAccess}, Posts: ${event.numberOfPosts}` });
 })
