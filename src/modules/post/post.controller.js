@@ -58,7 +58,7 @@ export const getAllPosts = catchAsyncError(async (req, res, next) => {
         .sort({ numberOfLikes: -1 })
         .skip(skip)
         .limit(limit);
-
+        
     const totalPosts = await Post.countDocuments({ event: eventId });
 
     const totalPages = Math.ceil(totalPosts / limit);
@@ -66,6 +66,10 @@ export const getAllPosts = catchAsyncError(async (req, res, next) => {
     if (posts.length === 0) {
         return res.status(404).json({ message: "No posts found for this event" });
     }
+    posts = await Post.populate(posts, {
+        path: "owner",
+        select: 'name',
+    });
 
     res.status(200).json({
         message: "All posts for the event",
