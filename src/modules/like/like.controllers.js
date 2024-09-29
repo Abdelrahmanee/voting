@@ -1,3 +1,4 @@
+import Event from "../../../db/models/event.model.js";
 import { Like } from "../../../db/models/like.model.js";
 import Post from "../../../db/models/post.model.js";
 import User from "../../../db/models/user.model.js";
@@ -17,6 +18,7 @@ export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
 
   
   const { postId } = req.body;
+  const { eventId } = req.params;
   const { ip } = req;
 
   const postIsExist = await Post.findById(postId);
@@ -29,6 +31,11 @@ export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
   if (!userIsExist) {
     throw new AppError('User not found', 404);
   }
+
+  let maxLikes;
+  const event = await Event.findById(eventId)
+  maxLikes = event.number_of_allowed_likes; // Use the max likes from the event
+
 
   const isLiked = await Like.findOne({ postId, likedBy: userIsExist._id });
 
@@ -51,9 +58,9 @@ export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
     return res.status(201).json({ message: "Unliked successfully" });
   }
 
-  // If the user has already liked 3 posts, prevent them from liking more
-  if (userIsExist.likes.length === 3) {
-    return res.status(400).json({ message: "User can only react for 3 cars" });
+  // 6. Check if the user has exceeded the allowed likes for the event
+  if (userIsExist.likes.length >= maxLikes) {
+    return res.status(400).json({ message: `You can only like a maximum of ${maxLikes} posts for this event.` });
   }
 
   // Create a new like

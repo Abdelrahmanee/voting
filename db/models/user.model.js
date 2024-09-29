@@ -71,7 +71,6 @@ const userSchema = new Schema({
         // 'this' refers to the current user document
         if (!this.eventIdToValidate)
           return
-
         const eventId = this.eventIdToValidate;  // Assuming this field will be set externally
 
         if (!eventId) {
@@ -91,6 +90,8 @@ const userSchema = new Schema({
 
         // Check the max allowed likes for the event
         const maxLikes = event.number_of_allowed_likes;
+        console.log(maxLikes);
+        
         if (likes.length > maxLikes) {
           throw new Error(`You can only have a maximum of ${maxLikes} likes for this event.`);
         }
@@ -116,18 +117,12 @@ userSchema.path('likes').set(function (likes) {
 });
 
 
-// Validation to enforce a maximum of 3 likes
-userSchema.path('likes').validate(function (likes) {
-  if (likes.length > 1) {
-    throw new AppError('You can only have a maximum of 1 likes.');
-  }
-}, 'You can only have a maximum of 1 likes.');
 
 userSchema.virtual('accessedEvents', {
   ref: 'EventUser',
   localField: '_id',
   foreignField: 'user',
-  justOne: false, // We expect multiple events per user
+  justOne: false, 
 });
 
 
