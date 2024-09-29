@@ -11,7 +11,8 @@ export const createUserSchema = Joi.object({
     body: {
         name: Joi.string().min(3).max(24).required(),
         address: Joi.object().unknown(true),
-        phone: Joi.string().pattern(new RegExp('^^(0(11|10|12|15)[0-9]{8}$')).required()
+        phone: Joi.string().pattern(new RegExp('^(0(11|10|12|15)[0-9]{8})$')).required()
+
     },
     params: {},
     query: {},
@@ -25,7 +26,7 @@ export const userInfoSchema = Joi.object({
 })
 
 export const loginSchema = Joi.object({
-    body: {phone: Joi.string().pattern(new RegExp('/(0(11|10|12|15)[0-9]{8}$'))}.required(),
+    body: { phone: Joi.string().pattern(new RegExp('^(0(11|10|12|15)[0-9]{8})$')).required() },
     params: {},
     query: {}
 })
