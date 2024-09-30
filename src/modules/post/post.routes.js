@@ -19,7 +19,7 @@ postRouter.post('/add-post',
     addPost
 )
 postRouter
-    .get('/post/:postId', validate(getSpecificPostSchema), authenticate, authorize(), getSpecificPost)
+    .post('/post/:postId', validate(getSpecificPostSchema), authenticate, authorize(), getSpecificPost)
     .put('/post/:postId', validate(updatePostSchema), authenticate, authorize([ROLES.ADMIN]), updatePost)
     .delete('/post/:postId', validate(deletePostSchema), authenticate, authorize([ROLES.ADMIN]), deletePost)
 

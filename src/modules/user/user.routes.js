@@ -14,11 +14,11 @@ const userRouter = Router()
 
 userRouter.post('/create-user', validate(createUserSchema) ,  checkUniquePhone ,checkUniqueIpAddress ,createUser)
 userRouter.post('/login', validate(loginSchema), login)
-userRouter.get('/userInfo' , validate(userInfoSchema),authenticate , authorize() , userInfo)
+userRouter.post('/userInfo' , validate(userInfoSchema),authenticate , authorize() , userInfo)
 
 userRouter.patch('/logout',authenticate , authorize() , logout)
 userRouter.patch('/delete-user',authenticate , authorize() , deleteUser)
 
-userRouter.get('/favorites', authenticate, authorize(), userFavorites);
+userRouter.post('/favorites', authenticate, authorize(), userFavorites);
 
 export default userRouter

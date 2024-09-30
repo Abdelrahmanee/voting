@@ -7,6 +7,7 @@ import morgan from 'morgan'
 import dotenv from 'dotenv'
 import { AppError } from './utilies/error.js'
 import v1_router from './routes/v1.routes.js'
+import { job } from './utilies/cronJop.js'
 
 dotenv.config()
 export const bootstrap = (app) => {
@@ -17,6 +18,7 @@ export const bootstrap = (app) => {
     app.set('trust proxy', true);
 
 
+    job();
     app.use(express.json())
 
 

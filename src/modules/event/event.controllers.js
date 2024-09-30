@@ -1,5 +1,8 @@
 import Event from "../../../db/models/event.model.js";
 import EventUser from "../../../db/models/EventUser.model.js";
+import { Like } from "../../../db/models/like.model.js";
+import Post from "../../../db/models/post.model.js";
+import User from "../../../db/models/user.model.js";
 import { AppError, catchAsyncError } from "../../utilies/error.js";
 
 
@@ -9,7 +12,7 @@ import { AppError, catchAsyncError } from "../../utilies/error.js";
 export const createEvent = catchAsyncError(async (req, res) => {
     const { eventName, startTime, endTime } = req.body;
 
-    
+
     // Validate that startTime is before endTime
     if (new Date(startTime) >= new Date(endTime)) {
         return res.status(400).json({
@@ -22,7 +25,7 @@ export const createEvent = catchAsyncError(async (req, res) => {
         eventName,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        makeBy : req.user._id,
+        makeBy: req.user._id,
         ...(req.body.number_of_allowed_likes && { number_of_allowed_likes: req.body.number_of_allowed_likes })
     });
 
@@ -82,7 +85,7 @@ export const checkEventEnd = catchAsyncError(async (req, res) => {
     console.log(timeDiff);
     console.log(event);
     console.log(event.timeDifference);
-    
+
     // Update event status if it has ended
     if (new Date() >= event.endTime) {
         event.status = 'completed'; // Assuming you have a status field
@@ -120,13 +123,10 @@ export const createEventAccess = catchAsyncError(async (req, res, next) => {
     const createdAccess = await EventUser.create({
         user: userId,
         event: eventId,
-        organizer: event.makeBy, 
-        hasAccess:true
+        organizer: event.makeBy,
+        hasAccess: true
     });
     console.log(createdAccess);
-    
-
-    
 
     if (!createdAccess) throw new AppError('Failed to create access record', 500);
 
@@ -156,11 +156,41 @@ export const getEventWithCounts = catchAsyncError(async (req, res, next) => {
         .populate('posts')
         .populate('numberOfUsersWithAccess') // Count of users with hasAccess: true
         .populate({
-          path: 'usersWithAccess',            // List of users with hasAccess: true
-          select: 'user'                      // Only select the user field
+            path: 'usersWithAccess',            // List of users with hasAccess: true
+            select: 'user'                      // Only select the user field
         });
     console.log(event.numberOfUsersWithAccess);
     console.log(event.usersWithAccess);
 
     res.status(200).json({ message: "Event details", data: `Event: ${event.eventName}, Users: ${event.numberOfUsersWithAccess}, Posts: ${event.numberOfPosts}` });
 })
+export const ElHoss = catchAsyncError(async (req, res, next) => {
+    const event = await Event.findById(req.params.eventId);
+    if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+    }
+
+    const users = await User.find({ role: 'User' });
+    const numberOfUsers = users.length;
+
+
+    const numberOflikes = await Like.countDocuments()
+
+    const topPosts = await Post.find({ event: req.params.eventId })
+        .sort({ numberOfLikes: -1 }) 
+        .limit(3);
+
+    const numberOfPosts = await Post.countDocuments({ event: req.params.eventId });
+
+    res.status(200).json({
+        timeDifference: event.timeDifference,
+        message: "Event details",
+        data: {
+            eventName: event.eventName,
+            numberOfUsers,
+            numberOfPosts,
+            numberOflikes,
+            topPosts 
+        }
+    });
+});
