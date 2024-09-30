@@ -28,7 +28,7 @@ export const bootstrap = (app) => {
         },
         credentials: true, // Allow credentials (cookies)
         allowedHeaders: ['Content-Type', 'Authorization'],
-        methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Allowed methods
     };
 
 
