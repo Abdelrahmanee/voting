@@ -10,7 +10,6 @@ import { ROLES } from "../../utilies/enums.js";
 
 
 const eventRouter = Router()
-// راييق فشخ
 
 eventRouter.post('/create-event', authenticate, authorize([ROLES.ADMIN]), validate(createEventSchema), checkUniqueEventName, createEvent);
 
