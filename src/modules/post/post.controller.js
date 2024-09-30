@@ -1,3 +1,5 @@
+
+
 import Post from "../../../db/models/post.model.js";
 import { AppError, catchAsyncError } from "../../utilies/error.js";
 
@@ -8,14 +10,14 @@ export const addPost = catchAsyncError(async (req, res, next) => {
 
     const uploadedImage = req.file;
     const post = new Post({
-        owner: req.user._id,
+        owner: req.body.owner,
         photo: uploadedImage.path,
         event: req.event._id
     })
 
     await post.save()
-    const populatedPost = await post.populate({ path: 'owner', select: '-address' })
-    res.status(201).json({ message: "post is created", data: populatedPost })
+    // const populatedPost = await post.populate({ path: 'owner', select: '-address' })
+    res.status(201).json({ message: "post is created", data: post })
 }
 )
 export const deletePost = catchAsyncError(async (req, res, next) => {

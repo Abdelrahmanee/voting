@@ -5,6 +5,7 @@ import Joi from "joi";
 export const addPostSchema = Joi.object({
     body: {
         userId: Joi.string().hex().length(24).required(),
+        owner: Joi.string().min(2).required(),
     },
     params: { eventId: Joi.string().hex().length(24).required() },
     query: {},
@@ -14,6 +15,7 @@ export const addPostSchema = Joi.object({
 export const updatePostSchema = Joi.object({
     body: {
         userId: Joi.string().hex().length(24).required(),
+        // owner: Joi.string().min(2).required(),
     },
     params: {
         postId: Joi.string().hex().length(24).required(),
