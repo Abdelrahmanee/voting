@@ -68,10 +68,7 @@ export const getAllPosts = catchAsyncError(async (req, res, next) => {
     if (posts.length === 0) {
         return res.status(404).json({ message: "No posts found for this event" });
     }
-    posts = await Post.populate(posts, {
-        path: "owner",
-        select: 'name',
-    });
+   
 
     res.status(200).json({
         message: "All posts for the event",
