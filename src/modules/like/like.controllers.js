@@ -11,32 +11,44 @@ const calculateExpirationDate = () => {
   return expirationDate;
 };
 
-
-
-
 export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
-
-  
   const { postId } = req.body;
   const { eventId } = req.params;
   const { ip } = req;
 
+  // Fetch the event by eventId
+  const event = await Event.findById(eventId);
+  if (!event) {
+    throw new AppError('Event not found', 404);
+  }
+
+  // Check if the event has started
+  const currentDate = new Date();
+  if (currentDate < event.startDate) {
+    return res.status(400).json({ message: 'The event has not started yet.' });
+  }
+
+  // Check if the event has expired
+  if (currentDate > event.expirationDate) {
+    return res.status(400).json({ message: 'The event has already ended.' });
+  }
+
+  // Ensure the post exists
   const postIsExist = await Post.findById(postId);
   if (!postIsExist) {
     throw new AppError('Post not found', 404);
   }
-  
 
+  // Ensure the user exists by their IP address
   const userIsExist = await User.findOne({ ipAddress: ip });
   if (!userIsExist) {
     throw new AppError('User not found', 404);
   }
 
-  let maxLikes;
-  const event = await Event.findById(eventId)
-  maxLikes = event.number_of_allowed_likes; // Use the max likes from the event
+  // Maximum likes for the event
+  const maxLikes = event.number_of_allowed_likes;
 
-
+  // Check if the post is already liked by the user
   const isLiked = await Like.findOne({ postId, likedBy: userIsExist._id });
 
   // If the post is already liked, remove the like
@@ -47,18 +59,18 @@ export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
     if (postIsExist.numberOfLikes > 0) {
       postIsExist.numberOfLikes--;
     }
-    await userIsExist.save();
+    await postIsExist.save();
+
+    // Remove postId from user's likes
     if (userIsExist.likes.length > 0) {
-      // Remove postId from user's likes
       userIsExist.likes.pull(postId);
     }
     await userIsExist.save();
 
-    await postIsExist.save();
     return res.status(201).json({ message: "Unliked successfully" });
   }
 
-  // 6. Check if the user has exceeded the allowed likes for the event
+  // Check if the user has exceeded the allowed likes for the event
   if (userIsExist.likes.length >= maxLikes) {
     return res.status(400).json({ message: `You can only like a maximum of ${maxLikes} posts for this event.` });
   }
@@ -78,6 +90,4 @@ export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
   await userIsExist.save();
 
   return res.status(201).json({ message: "Liked successfully", data: like });
-
 });
-
