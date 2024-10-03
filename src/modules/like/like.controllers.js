@@ -24,12 +24,12 @@ export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
 
   // Check if the event has started
   const currentDate = new Date();
-  if (currentDate < event.startDate) {
+  if (currentDate < event.startTime) {
     return res.status(400).json({ message: 'The event has not started yet.' });
   }
 
   // Check if the event has expired
-  if (currentDate > event.expirationDate) {
+  if (currentDate > event.endTime) {
     return res.status(400).json({ message: 'The event has already ended.' });
   }
 
