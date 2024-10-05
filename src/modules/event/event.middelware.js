@@ -52,7 +52,7 @@ export const checkHasAccess = catchAsyncError(async (req, res, next) => {
             { path: 'organizer', model: 'User', select: '-address -ipAddress -events -updatedAt -isLoggedOut' }
         ]);
         console.log("hellow");
-        
+
         return res.status(200).json({ message: "User has accessed this event before", data: populatedAccess });
     }
 
@@ -60,3 +60,23 @@ export const checkHasAccess = catchAsyncError(async (req, res, next) => {
 });
 
 
+export const checkEventTimes = catchAsyncError(async (req, res, next) => {
+
+    const { startTime, endTime } = req.body;
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const currentTime = new Date();
+    console.log(start);
+    
+
+    if (start < currentTime) return res.status(400).json({ message: 'Invalid event times. start time must be after current time' });
+
+    if (end <= startTime) {
+        return res.status(400).json({ message: 'Invalid event times. End time must be after start time.' });
+    }
+
+    next();
+
+
+})

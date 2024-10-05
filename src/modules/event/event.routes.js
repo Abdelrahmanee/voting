@@ -4,14 +4,14 @@ import { checkEventIdParams, createEventSchema } from "./event.validate.js";
 import { checkEventEnd, checkEventStart, createEvent, createEventAccess, ElHoss, getEventWithCounts, getSpecificEvent } from "./event.controllers.js";
 import postRouter from "../post/post.routes.js";
 import likeRouter from "../like/like.routes.js";
-import { checkEventExists, checkHasAccess, checkUniqueEventName, eventIsActive } from "./event.middelware.js";
+import { checkEventExists, checkEventTimes, checkHasAccess, checkUniqueEventName, eventIsActive } from "./event.middelware.js";
 import { authenticate, authorize } from "../../middelwares/auth.middelwares.js";
 import { ROLES } from "../../utilies/enums.js";
 
 
 const eventRouter = Router()
 
-eventRouter.post('/create-event', authenticate, authorize([ROLES.ADMIN]), validate(createEventSchema), checkUniqueEventName, createEvent);
+eventRouter.post('/create-event', authenticate, authorize([ROLES.ADMIN]), validate(createEventSchema), checkUniqueEventName, checkEventTimes ,createEvent);
 
 eventRouter.param('eventId', checkEventExists);
 

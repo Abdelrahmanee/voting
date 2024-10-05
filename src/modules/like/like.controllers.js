@@ -12,7 +12,7 @@ const calculateExpirationDate = () => {
 };
 
 export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
-  const { postId } = req.body;
+  const { postId  } = req.body;
   const { eventId } = req.params;
   const { ip } = req;
 
@@ -22,14 +22,15 @@ export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
     throw new AppError('Event not found', 404);
   }
 
-  // Check if the event has started
-  const currentDate = new Date();
-  if (currentDate < event.startTime) {
+  const start = new Date(event.startTime);
+  const end = new Date(event.endTime);
+  const currentTime = new Date();
+  if (currentTime < start) {
     return res.status(400).json({ message: 'The event has not started yet.' });
   }
 
   // Check if the event has expired
-  if (currentDate > event.endTime) {
+  if (currentTime > end) {
     return res.status(400).json({ message: 'The event has already ended.' });
   }
 
