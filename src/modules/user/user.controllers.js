@@ -1,3 +1,4 @@
+import axios from "axios";
 import User from "../../../db/models/user.model.js";
 import { USERSTATUS } from "../../utilies/enums.js";
 import { AppError, catchAsyncError } from "../../utilies/error.js";
