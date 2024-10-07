@@ -73,7 +73,7 @@ export const likeOrUnlike = catchAsyncError(async (req, res, next) => {
 
   // Check if the user has exceeded the allowed likes for the event
   if (userIsExist.likes.length >= maxLikes) {
-    return res.status(400).json({ message: `You can only like a maximum of ${maxLikes} posts for this event.` });
+    return res.status(400).json({ message: `You can only like ${maxLikes} car` });
   }
 
   // Create a new like

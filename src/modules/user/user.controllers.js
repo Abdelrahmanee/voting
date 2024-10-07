@@ -31,7 +31,7 @@ export const createUser = catchAsyncError(async (req, res) => {
     });
     await newUser.save();
     const user = await User.findById(newUser._id)
-    res.status(201).json({ message: 'User created successfully', data: user, ipAddress });
+    res.status(201).json({ message: 'User created successfully', data: user, ip : ipAddress });
 })
 
 export const login = catchAsyncError(async (req, res, next) => {
