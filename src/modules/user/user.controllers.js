@@ -1,20 +1,30 @@
 import User from "../../../db/models/user.model.js";
 import { USERSTATUS } from "../../utilies/enums.js";
 import { AppError, catchAsyncError } from "../../utilies/error.js";
-
-
+import dotenv from 'dotenv'
+dotenv.config();
 
 
 export const createUser = catchAsyncError(async (req, res) => {
-    const { ip } = req;
+    const ipAddress = req.ip  || req.connection.remoteAddress;
 
     const { name, address, phone } = req.body;
+    const apiKey = process.env.IP_TOKEN_KEY;
+    
+    const response = await axios.get(`https://ipinfo.io/${ipAddress}?token=${apiKey}`);
+    console.log(response);
+    
+    const { country, region, city } = response.data;
 
     const newUser = new User({
         name,
         phone,
-        ipAddress: ip,
-        address,
+        ipAddress,
+        address :{
+            country,
+            region,
+            city
+        },
         isLoggedOut: false,
         status: USERSTATUS.ONLINE
     });
@@ -26,7 +36,7 @@ export const createUser = catchAsyncError(async (req, res) => {
 export const login = catchAsyncError(async (req, res, next) => {
     const { phone } = req.body
     console.log(req.ip);
-    const user = await User.findOne({ phone, ipAddress: req.ip })
+    const user = await User.findOne({ phone, ipAddress: req.ip || req.connection.remoteAddress })
     if (!user)
         throw new AppError("please sure that the phone is correct and use the device that you registerd with", 498)
     user.isLoggedOut = false;

@@ -23,26 +23,30 @@ const userSchema = new Schema({
     unique: true,
   },
   address: {
-    street: {
-      type: String,
-      required: true,
-    },
-    city: {
-      type: String,
-      required: true,
-    },
-    state: {
-      type: String,
-      required: true,
-    },
-    country: {
-      type: String,
-      required: true,
-    },
-    postalCode: {
-      type: String,
-      required: true,
-    },
+    country: String,
+    region: String,
+    city: String,
+
+    // street: {
+    //   type: String,
+    //   required: true,
+    // },
+    // city: {
+    //   type: String,
+    //   required: true,
+    // },
+    // state: {
+    //   type: String,
+    //   required: true,
+    // },
+    // country: {
+    //   type: String,
+    //   required: true,
+    // },
+    // postalCode: {
+    //   type: String,
+    //   required: true,
+    // },
   },
   createdAt: {
     type: Date,
